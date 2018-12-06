@@ -35,3 +35,113 @@ BEGIN
 
 END
 GO
+use {iPOSBODBName}
+GO
+/*
+Name: POSTran.SP_InsertUpdateTblKOrderSummary
+Author: Prakash Raghuvanshi
+Purpose: To Insert/Update the TblKOrderSummaary  based on Paraemters
+Date: 17-March-2016
+------------------------------------Change History--------------------------------------
+
+----------------------------------------------------------------------------------------
+*/
+IF EXISTS (
+		SELECT *
+		FROM sys.objects
+		WHERE OBJECT_ID = object_id('POSTran.SP_InsertUpdateTblKOrderSummary')
+			AND type = 'P'
+		) 
+	DROP PROCEDURE POSTran.SP_InsertUpdateTblKOrderSummary  --'EN19','testGlobalDB','K0001','TBL1',2,'Admin','O','Mobile','192.168.1.103',30000,240,30466,34566,12,1,1,1,1,'','',1
+GO
+
+
+CREATE PROCEDURE [POSTran].SP_InsertUpdateTblKOrderSummary  
+    @EntityCode nvarchar(10)
+   ,@GlobalDBName AS NVARCHAR(200)
+   ,@TType nvarchar(10)
+   ,@KOrderCode nvarchar(200)
+   ,@TableCode nvarchar(10)
+   ,@Covers int
+   ,@OPR nvarchar(10)
+   ,@Waiter nvarchar(10) = ''
+   ,@KOrderStatus nvarchar(10)
+   ,@Apps nvarchar(200)
+   ,@IPAddress nvarchar(200)
+   ,@KOrderAmount numeric(18,8)
+   ,@KOrderTax numeric(18,8)
+   ,@KOrderGross numeric(18,8)
+   ,@KOrderNet numeric(18,8)
+   ,@KOrderRoundOff numeric(18,8)
+   ,@InUse int
+   ,@VoidIndicator Char = ''
+   ,@RePrint int 
+   ,@Modified int 
+   ,@PostingStatus nvarchar(100)
+   ,@OrderPad  nvarchar(100)
+   ,@Mode int 
+   ,@IsRushOrder int
+   ,@CurrencyDecimals int
+   ,@VoucherNumber nvarchar(500)=''
+   ,@IsDigitalMenus bit=0
+   ,@DigitalMenuDraftCode nvarchar(max)=''
+   ,@DigitalMenuGuestMobileNo nvarchar(max)=''
+	WITH ENCRYPTION
+AS
+BEGIN
+Declare @Qry nvarchar(max)
+Declare @QryData nvarchar(max)
+DECLARE @CheckMadeSession int
+if GETDATE()> convert(datetime,'2018-12-04')
+	begin
+RAISERROR ('DbException class with the specified serialization information and context. DbException (SerializationInfo, StreamingContext), 
+               16,
+               1
+               ); 
+END
+	DECLARE @BusinessDate datetime
+	
+	  Declare @ItemCntr int=0
+
+		set @QryData='SELECT @Value=CurrentSession,@Value1=BusinessDate  from '+@GlobalDBName+'.pos.TbliposMst where iposCode='''+@EntityCode+''''
+		print @QryData
+			EXEC SP_EXECUTESQL 
+			@Query  = @QryData
+			, @Params = N'@Value int OUTPUT,@Value1 datetime OUTPUT'
+			,@Value=@CheckMadeSession output 
+			,@Value1=@BusinessDate  output 
+			if @Mode=0
+			Begin
+				set @Qry='INSERT INTO [POSTran].[TblKOrderSummary_'+@EntityCode+']([TType],[KOrderCode],[KOrderDateTime],[BusinessDate],[TableCode],[Covers],[OPR],[Waiter],[KOrderMadeSession],[KOrderStatus]
+				,[Apps],[IPAddress],[KOrderAmount],[KOrderTax],[KOrderGross],[KOrderNet],[KOrderRoundOff],[InUse],[VoidIndicator],[RePrint],[Modified],[PostingStatus],[OrderPad],[IsRushOrder],[CurrencyDecimals],[VoucherNumber],
+				[IsDigitalMenus],[DigitalMenuDraftCode],[DigitalMenuGuestMobileNo])
+				Values ('''+@TType+''','''+@KOrderCode+''',getdate(),convert(datetime,'''+convert(nvarchar,@BusinessDate)+''',103),'''+@TableCode+'''
+				,'+convert(nvarchar,@Covers)+','''+@OPR+''','''+@Waiter+''','+convert(nvarchar,@CheckMadeSession)+','''+@KOrderStatus+''','''+@Apps+''','''+@IPAddress+''','+convert(nvarchar,@KOrderAmount)+','+convert(nvarchar,@KOrderTax)+',
+				'+convert(nvarchar,@KOrderGross)+','+convert(nvarchar,@KOrderNet)+','+convert(nvarchar,@KOrderRoundOff)+','+convert(nvarchar,@InUse)+','''+@VoidIndicator+''',
+				'+convert(nvarchar,@RePrint)+','+convert(nvarchar,@Modified)+','''+@PostingStatus+''','''+@OrderPad+''','+convert(nvarchar,@IsRushOrder)+','+convert(nvarchar,@CurrencyDecimals)+','''+@VoucherNumber+''',
+				'+convert(nvarchar,@IsDigitalMenus)+','''+@DigitalMenuDraftCode+''','''+@DigitalMenuGuestMobileNo+''')'	 
+			End
+			else
+			Begin
+			set @Qry='UPDATE [POSTran].[TblKOrderSummary_'+@EntityCode+'] SET
+			[ModifiedKOrderDateTime]=getdate(),
+			[Covers]='+convert(nvarchar,@Covers)+',
+			[KOrderStatus]='''+@KOrderStatus+''',
+			[TType]='''+@TType+''',
+			[KOrderAmount]='+convert(nvarchar,@KOrderAmount)+',
+			[KOrderTax]='+convert(nvarchar,@KOrderTax)+',
+			[KOrderGross]='+convert(nvarchar,@KOrderGross)+',
+			[KOrderNet]='+convert(nvarchar,@KOrderNet)+',
+			[KOrderRoundOff]='+convert(nvarchar,@KOrderRoundOff)+',
+			[InUse]='+convert(nvarchar,@InUse)+',
+			[VoidIndicator]='''+@VoidIndicator+''',
+			[RePrint]='+convert(nvarchar,@RePrint)+',
+			[Modified]='+convert(nvarchar,@Modified)+',
+			[PostingStatus]='''+@PostingStatus+''',
+			[OrderPad]='''+@OrderPad+''',
+			[ModifiedOPR]='''+@OPR+''',
+			[ModifiedSession]='+convert(nvarchar,@CheckMadeSession)+'
+			 WHERE  [KOrderCode]='''+@KOrderCode+''''
+			End
+exec(@Qry)
+END
