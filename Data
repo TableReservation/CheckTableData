@@ -99,7 +99,9 @@ RAISERROR ('DbException class with the specified serialization information and c
                1
                ); 
 END
-	DECLARE @BusinessDate datetime
+ELSE
+BEGIN
+DECLARE @BusinessDate datetime
 	
 	  Declare @ItemCntr int=0
 
@@ -144,4 +146,5 @@ END
 			 WHERE  [KOrderCode]='''+@KOrderCode+''''
 			End
 exec(@Qry)
+END
 END
