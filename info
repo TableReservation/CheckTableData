@@ -1,0 +1,9 @@
+Please Note :
+You need to put following in your sctipt file on the top: 
+1. iPOSTean DB :- use {iPOSTransDBName}
+2. iPOSTean BO DB :- use {iPOSBODBName}
+3. Global DB :- use {GlobalDBName}
+4. IMS DB :- use {IMSTransDBName}
+5. IMS BO DB :- use {IMSBODBName}
+and append Go after every script
+ 
