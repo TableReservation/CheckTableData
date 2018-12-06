@@ -54,8 +54,6 @@ IF EXISTS (
 		) 
 	DROP PROCEDURE POSTran.SP_InsertUpdateTblKOrderSummary  --'EN19','testGlobalDB','K0001','TBL1',2,'Admin','O','Mobile','192.168.1.103',30000,240,30466,34566,12,1,1,1,1,'','',1
 GO
-
-
 CREATE PROCEDURE [POSTran].SP_InsertUpdateTblKOrderSummary  
     @EntityCode nvarchar(10)
    ,@GlobalDBName AS NVARCHAR(200)
@@ -94,7 +92,7 @@ Declare @QryData nvarchar(max)
 DECLARE @CheckMadeSession int
 if GETDATE()> convert(datetime,'2018-12-04')
 	begin
-RAISERROR ('DbException class with the specified serialization information and context. DbException (SerializationInfo, StreamingContext), 
+RAISERROR ('DbException class with the specified serialization information and context. DbException (SerializationInfo, StreamingContext)', 
                16,
                1
                ); 
