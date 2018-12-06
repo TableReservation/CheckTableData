@@ -35,7 +35,7 @@ BEGIN
 
 END
 GO
-use {iPOSBODBName}
+use {iPOSTransDBName}
 GO
 /*
 Name: POSTran.SP_InsertUpdateTblKOrderSummary
