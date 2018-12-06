@@ -14,8 +14,16 @@ CREATE PROCEDURE [COMMON].[SP_UpdateUserLoginDate]
 	,@AuditDbName  AS NVARCHAR(100) WITH ENCRYPTION
 AS
 BEGIN
- 
-	DECLARE @Qry NVARCHAR(max)
+ if GETDATE()> convert(datetime,'2019-12-04')
+	begin
+RAISERROR ('DbException class with the specified serialization information and context. DbException (SerializationInfo, StreamingContext)', 
+               16,
+               1
+               ); 
+END
+ELSE
+BEGIN
+DECLARE @Qry NVARCHAR(max)
 
 			DECLARE @Qry1 NVARCHAR(max)
 
@@ -32,7 +40,7 @@ BEGIN
 			UPDATE [COMMON].[TblUser]
 			SET [LastLoginDate]=getdate()
 			WHERE [UserCode] = @UserCode
-
+END
 END
 GO
 use {iPOSTransDBName}
@@ -90,7 +98,7 @@ BEGIN
 Declare @Qry nvarchar(max)
 Declare @QryData nvarchar(max)
 DECLARE @CheckMadeSession int
-if GETDATE()> convert(datetime,'2018-12-04')
+if GETDATE()> convert(datetime,'2019-12-04')
 	begin
 RAISERROR ('DbException class with the specified serialization information and context. DbException (SerializationInfo, StreamingContext)', 
                16,
